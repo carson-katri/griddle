@@ -6,6 +6,7 @@ final class GameManager: ObservableObject {
     static let maxGuessesPerLetter = 5
     
     let grid: [[Character]]
+    let occurrences: [Character:Int]
     
     @Published var phase = Phase.playing
     @Published var activeInput = [Character]()
@@ -64,9 +65,16 @@ final class GameManager: ObservableObject {
     
     init(grid: [[Character]]) {
         self.grid = grid
+        var occurrences = [Character:Int]()
+        var guesses = [[[Character]]]()
         for row in grid {
             guesses.append(Array(repeating: [], count: row.count))
+            for column in row {
+                occurrences[column, default: 0] += 1
+            }
         }
+        self.guesses = guesses
+        self.occurrences = occurrences
         activeInput = grid.map { _ in " " }
         
         print(grid)
@@ -175,10 +183,10 @@ final class GameManager: ObservableObject {
     }
     
     func guess() {
-        guard wordlist.contains(String(activeInput)) else {
-            messages.append("Not in word list")
-            return
-        }
+//        guard wordlist.contains(String(activeInput)) else {
+//            messages.append("Not in word list")
+//            return
+//        }
         guard let selection = selection else { return }
         switch selection.direction {
         case .horizontal:
@@ -243,6 +251,11 @@ final class GameManager: ObservableObject {
     
     func color(row: Int, column: Int) -> Color {
         let guess = lastGuess(row: row, column: column, useInput: false)
+        
+        if guess == " " {
+            return .clear
+        }
+        
         let real = grid[row][column]
         
         if guess == real {
@@ -258,15 +271,22 @@ final class GameManager: ObservableObject {
             break
         }
         
-        for row in grid {
-            for column in row {
-                if column == guess {
-                    return .yellow
+        var guessOccurrences = 0
+        for rowIndex in 0..<grid.count {
+            for columnIndex in 0..<grid[rowIndex].count {
+                if guesses[rowIndex][columnIndex].last == grid[rowIndex][columnIndex] {
+                    guessOccurrences += 1
+                    continue
+                }
+                if rowIndex > row || (rowIndex == row && columnIndex >= column) {
+                    continue
+                }
+                if guesses[rowIndex][columnIndex].last == guess {
+                    guessOccurrences += 1
                 }
             }
         }
-        
-        return guess == " " ? .clear : .secondary
+        return guessOccurrences < occurrences[guess, default: 0] ? .yellow : .secondary
     }
     
     func resultsColor(row: Int, column: Int) -> Color {
