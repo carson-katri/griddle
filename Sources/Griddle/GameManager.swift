@@ -17,45 +17,36 @@ final class GameManager: ObservableObject {
     
     enum Phase: Hashable {
         case playing
-        case win(Stats)
-        case loss(Stats)
+        case win
+        case loss
     }
     
-    struct Stats: Hashable {
-        let guesses: [[[Character]]]
+    func share(includeURL: Bool) {
+        let grid = (0..<guesses.count).map { row in
+            (0..<guesses[row].count).map { column in
+                switch resultsColor(row: row, column: column) {
+                case .yellow: return "🟨"
+                case .green: return "🟩"
+                case .red: return "🟥"
+                default: return "⬛️"
+                }
+            }.joined(separator: "")
+        }.joined(separator: "\n")
+        var message = """
+        Griddle 1
         
-        func share(includeURL: Bool) {
-            let grid = guesses.map { row in
-                row.map { column in
-                    if column.count == 0 {
-                        return "⬛️"
-                    } else if column.count <= 2 {
-                        return "🟩"
-                    } else if column.count <= 3 {
-                        return "🟨"
-                    } else if column.count >= GameManager.maxGuessesPerLetter {
-                        return "🟥"
-                    } else {
-                        return "⬛️"
-                    }
-                }.joined(separator: "")
-            }.joined(separator: "\n")
-            var message = """
-            Griddle 1
-            
-            \(grid)
-            """
-            if includeURL {
-                message.append("\n\(JSObject.global.location.href.string ?? "")")
-            }
-            
-            if JSObject.global.navigator.isUndefined || JSObject.global.navigator.share.isUndefined {
-                _ = JSObject.global.navigator.clipboard.writeText(message)
-            } else {
-                _ = JSObject.global.navigator.share([
-                    "text": message
-                ].jsValue)
-            }
+        \(grid)
+        """
+        if includeURL {
+            message.append("\n\(JSObject.global.location.href.string ?? "")")
+        }
+        
+        if JSObject.global.navigator.isUndefined || JSObject.global.navigator.share.isUndefined {
+            _ = JSObject.global.navigator.clipboard.writeText(message)
+        } else {
+            _ = JSObject.global.navigator.share([
+                "text": message
+            ].jsValue)
         }
     }
     
@@ -65,7 +56,8 @@ final class GameManager: ObservableObject {
         var column: Int
     }
     
-    init(grid: [[Character]]) {
+    init() {
+        let grid = GameHistory.Day.today.grid
         self.grid = grid
         var occurrences = [Character:Int]()
         var guesses = [[[Character]]]()
@@ -75,11 +67,11 @@ final class GameManager: ObservableObject {
                 occurrences[column, default: 0] += 1
             }
         }
-        self.guesses = guesses
+        self.guesses = GameHistory.shared.history[.today] ?? guesses
         self.occurrences = occurrences
         activeInput = grid.map { _ in " " }
         
-        print(grid)
+        checkWin()
         
         let alphabet = "abcdefghijklmnopqrstuvwxyz"
         _ = JSObject.global.document.addEventListener("keydown", JSClosure { [weak self] event in
@@ -240,15 +232,22 @@ final class GameManager: ObservableObject {
                 }
             }
         }
+        
+        GameHistory.shared.history[.today] = self.guesses
+        
         self.selection = nil
         activeInput = self.guesses.map { _ in " " }
         
+        checkWin()
+    }
+    
+    func checkWin() {
         var didWin = true
         for row in 0..<guesses.count {
             for column in 0..<guesses[row].count {
                 if guesses[row][column].last != grid[row][column] {
                     if guesses[row][column].count >= Self.maxGuessesPerLetter {
-                        self.phase = .loss(Stats(guesses: guesses))
+                        self.phase = .loss
                         return
                     }
                     didWin = false
@@ -256,7 +255,7 @@ final class GameManager: ObservableObject {
             }
         }
         if didWin {
-            self.phase = .win(Stats(guesses: guesses))
+            self.phase = .win
         }
     }
     

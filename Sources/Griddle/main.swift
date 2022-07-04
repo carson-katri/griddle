@@ -1,5 +1,6 @@
 import TokamakShim
 import JavaScriptKit
+import Foundation
 
 private func cartestianProduct<R>(
     a: [[Character]],
@@ -19,11 +20,24 @@ private func cartestianProduct<R>(
     return nil
 }
 
-private func makeGrid() -> ([Character], [Character], [Character]) {
+struct SeededRandomNumberGenerator: RandomNumberGenerator {
+    init(seed: Int) {
+        srand48(seed)
+    }
+    
+    func next() -> UInt64 {
+        return withUnsafeBytes(of: drand48()) { bytes in
+            bytes.load(as: UInt64.self)
+        }
+    }
+}
+
+private func makeGrid(seed: Int) -> ([Character], [Character], [Character]) {
     let rowLength = 3
     let colLength = 3
     
-    let rowWords = wordlist.shuffled()
+    var generator = SeededRandomNumberGenerator(seed: seed)
+    let rowWords = wordlist.shuffled(using: &generator)
     let colWords = wordlist
     
     var possible = [[[Character]]]()
@@ -49,7 +63,7 @@ private func makeGrid() -> ([Character], [Character], [Character]) {
             }
         }
         return (a, b, c)
-    } ?? makeGrid()
+    } ?? makeGrid(seed: seed)
 }
 
 struct GriddleApp: App {
@@ -57,23 +71,77 @@ struct GriddleApp: App {
     static let _configuration = _AppConfiguration(reconciler: .fiber(useDynamicLayout: true))
     #endif
     
-    let grid: [[Character]]
-    
-    init() {
-        let grid = makeGrid()
-        self.grid = [
-            grid.0,
-            grid.1,
-            grid.2,
-        ]
-    }
-    
-    @State private var isOn = false
+    @AppStorage("seenTutorial") var seenTutorial = false
     
     var body: some Scene {
         WindowGroup("Griddle") {
-            GameView(grid: grid)
+            GameView(seenTutorial: $seenTutorial)
         }
+    }
+}
+
+struct GameHistory: Codable, Hashable {
+    var history: [Day:[[[Character]]]]
+    
+    init(history: [Day:[[[Character]]]]) {
+        self.history = history
+    }
+    
+    static let sharedKey = "history"
+    static var shared: Self {
+        get {
+            guard let data = LocalStorage.standard.read(key: sharedKey)?.data(using: .utf8),
+                  let gameHistory = try? JSONDecoder().decode(GameHistory.self, from: data)
+            else { return .init(history: [:]) }
+            return gameHistory
+        }
+        set {
+            guard let data = try? JSONEncoder().encode(newValue),
+                  let json = String(data: data, encoding: .utf8)
+            else { return }
+            LocalStorage.standard.store(key: sharedKey, value: json)
+        }
+    }
+    
+    struct Day: Codable, Hashable {
+        let day: Int
+        let month: Int
+        let year: Int
+        
+        static var today: Self {
+            let components = Calendar.current.dateComponents([.day, .month, .year], from: Date())
+            return Self(
+                day: components.day ?? 0,
+                month: components.month ?? 0,
+                year: components.year ?? 0
+            )
+        }
+        
+        var grid: [[Character]] {
+            let grid = makeGrid(seed: (year * 365) + (month * 31) + day)
+            return [
+                grid.0,
+                grid.1,
+                grid.2,
+            ]
+        }
+        
+        var next: Date {
+            let startOfDay = Calendar.current.startOfDay(for: Date())
+            return Calendar.current.date(byAdding: .day, value: 1, to: startOfDay) ?? Date()
+        }
+    }
+}
+
+extension Character: Codable {
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        self = try Character(container.decode(String.self))
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(String(self))
     }
 }
 

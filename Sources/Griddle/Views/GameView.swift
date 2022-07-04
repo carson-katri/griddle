@@ -3,15 +3,15 @@ import TokamakShim
 import JavaScriptKit
 
 struct GameView: View {
-    let grid: [[Character]]
-    
     @StateObject private var manager: GameManager
     
+    @Binding var seenTutorial: Bool
     @State private var showTutorial = false
     
-    init(grid: [[Character]]) {
-        self.grid = grid
-        self._manager = .init(wrappedValue: GameManager(grid: grid))
+    init(seenTutorial: Binding<Bool>) {
+        self._manager = .init(wrappedValue: GameManager())
+        self._seenTutorial = seenTutorial
+        self._showTutorial = .init(wrappedValue: !seenTutorial.wrappedValue)
     }
     
     var body: some View {
@@ -34,7 +34,7 @@ struct GameView: View {
                     GridRow {
                         Color.clear
                             .gridCellUnsizedAxes([.horizontal, .vertical])
-                        ForEach(0..<grid.count) { column in
+                        ForEach(0..<manager.grid.count) { column in
                             AxisButton(
                                 axis: .vertical,
                                 isActive: manager.selection?.direction == .vertical
@@ -44,7 +44,7 @@ struct GameView: View {
                             }
                         }
                     }
-                    ForEach(Array(grid.enumerated()), id: \.element) { word in
+                    ForEach(Array(manager.grid.enumerated()), id: \.element) { word in
                         GridRow {
                             AxisButton(
                                 axis: .horizontal,
@@ -102,10 +102,9 @@ struct GameView: View {
         .frame(maxWidth: .infinity)
         .overlay {
             switch manager.phase {
-            case let .loss(stats),
-                 let .win(stats):
+            case .loss, .win:
                 ModalView {
-                    GameSummaryView(manager: manager, stats: stats)
+                    GameSummaryView(manager: manager)
                 }
             case .playing:
                 EmptyView()
@@ -115,6 +114,7 @@ struct GameView: View {
             if showTutorial {
                 ModalView {
                     HowToPlay {
+                        seenTutorial = true
                         showTutorial = false
                     }
                 }

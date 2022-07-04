@@ -2,7 +2,6 @@ import TokamakShim
 
 struct GameSummaryView: View {
     @ObservedObject var manager: GameManager
-    let stats: GameManager.Stats
     @State private var includeURL = true
     
     var body: some View {
@@ -22,7 +21,7 @@ struct GameSummaryView: View {
                 ForEach(Array(manager.grid.enumerated()), id: \.offset) { row in
                     GridRow {
                         ForEach(Array(row.element.enumerated()), id: \.offset) { letter in
-                            let guesses = stats.guesses[row.offset][letter.offset].count
+                            let guesses = manager.guesses[row.offset][letter.offset].count
                             Text(String(letter.element))
                                 .font(.title3)
                                 .bold()
@@ -54,7 +53,7 @@ struct GameSummaryView: View {
                         label: Text("share your grid")
                             .foregroundColor(.white),
                         padding: 8,
-                        action: { stats.share(includeURL: includeURL) },
+                        action: { manager.share(includeURL: includeURL) },
                         fill: .green
                     )
                     .frame(width: 150)
