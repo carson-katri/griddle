@@ -13,6 +13,13 @@ struct Day: Codable, Hashable {
         ]
     }
     
+    /// The game was released 7/4/2022.
+    ///
+    /// Used to compute the # of this game when sharing.
+    static let releaseDate: Self = {
+        Self(timestamp: 1656907200)
+    }()
+    
     static let today: Self = {
         Self(
             timestamp: Int(midnight.valueOf() / 1000)

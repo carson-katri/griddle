@@ -1,39 +1,87 @@
 import Foundation
 
+/// Generate a 3x3 grid of valid words.
+///
+/// A few conditions must be met for a grid to be valid:
+///
+/// * Each row/column must form a valid word. For example,
+/// ```
+/// S A C
+/// A G O
+/// T E N
+/// ```
+/// is a valid grid containing `SAC`, `AGO`, `TEN` as rows, and `SAT`, `AGE`, and `CON` as columns.
+///
+/// * No words can repeat. For example,
+/// ```
+/// S A G
+/// A G E
+/// T E N
+/// ```
+/// is not a valid grid (even though each word itself is valid) because `AGE` is the second row and column.
 func makeGrid(seed: Int) -> ([Character], [Character], [Character]) {
     let rowLength = 3
-    let colLength = 3
     
     var generator = SeededRandomNumberGenerator(seed: seed)
-    let rowWords = wordlist.shuffled(using: &generator)
-    let colWords = wordlist
+    let shuffledWords = wordlist.shuffled(using: &generator)
     
     var possible = [[[Character]]]()
-    let rowWord = rowWords[0]
+    
+    // First pick the topmost row.
+    // Example:
+    // C A T
+    // _ _ _
+    // _ _ _
+    let rowWord = shuffledWords[0]
+    
+    // Filter the word list to words that start with any letter in the `rowWord`.
+    // Example:
+    // C A T
+    // A R A
+    // R T G
+    // At this point, we don't try to build a valid grid, we just want a list of every word
+    // that starts with (in this case) C, A, or T.
     for col in 0..<rowLength {
-        possible.append(colWords.reduce(into: [], { (partialResult: inout [[Character]], word: String) in
+        possible.append(shuffledWords.reduce(into: [], { partialResult, word in
             if word.starts(with: String(rowWord[rowWord.index(rowWord.startIndex, offsetBy: col)])) {
                 partialResult.append(Array(word))
             }
         }))
     }
     
+    // Now check every possible combination of columns.
     return cartestianProduct(
         a: possible[0], b: possible[1], c: possible[2]
     ) { (a, b, c) in
+        // Validate this combination.
+        // These words would be placed vertically. We know they are valid words.
+        // Check if they form a valid word in each row.
+        // Example:
+        // a is SAT, b is TWO, c is YET.
+        // S T Y
+        // A W E
+        // T O T
         for col in 0..<rowLength {
-            let col = [a[col], b[col], c[col]]
-            if !wordlist.contains(String(col)) {
+            // Check if the letters form a row.
+            // Example:
+            // SAT[0] -> S, TWO[0] -> W, YET[0] -> Y.
+            // STY is a word, so it passes.
+            let row = [a[col], b[col], c[col]]
+            if !wordlist.contains(String(row)) {
                 return nil
             }
-            if a == col || b == col || c == col {
+            // Check if we used a word in a row more than once.
+            // If so, this is invalid.
+            if a == row || b == row || c == row {
                 return nil
             }
         }
+        // If all checks passed, use this as the grid.
         return (a, b, c)
-    } ?? makeGrid(seed: seed)
+    } ?? makeGrid(seed: seed) // If this `rowWord` has no valid grid, try again with a new row word.
 }
 
+/// Naively loops through all combinations of `a`, `b`, and `c`.
 private func cartestianProduct<R>(
     a: [[Character]],
     b: [[Character]],
@@ -52,6 +100,10 @@ private func cartestianProduct<R>(
     return nil
 }
 
+/// A random number generator that accepts a seed.
+///
+/// This allows us to generate the same grid for every player each day
+/// by using the date as the seed. It also prevents the need to precompute a certain number of grids.
 struct SeededRandomNumberGenerator: RandomNumberGenerator {
     init(seed: Int) {
         srand48(seed)

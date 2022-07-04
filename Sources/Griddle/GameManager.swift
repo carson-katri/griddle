@@ -21,35 +21,6 @@ final class GameManager: ObservableObject {
         case loss
     }
     
-    func share(includeURL: Bool) {
-        let grid = (0..<guesses.count).map { row in
-            (0..<guesses[row].count).map { column in
-                switch resultsColor(row: row, column: column) {
-                case .yellow: return "🟨"
-                case .green: return "🟩"
-                case .red: return "🟥"
-                default: return "⬛️"
-                }
-            }.joined(separator: "")
-        }.joined(separator: "\n")
-        var message = """
-        Griddle 1
-        
-        \(grid)
-        """
-        if includeURL {
-            message.append("\n\(JSObject.global.location.href.string ?? "")")
-        }
-        
-        if JSObject.global.navigator.isUndefined || JSObject.global.navigator.share.isUndefined {
-            _ = JSObject.global.navigator.clipboard.writeText(message)
-        } else {
-            _ = JSObject.global.navigator.share([
-                "text": message
-            ].jsValue)
-        }
-    }
-    
     struct Selection: Hashable {
         let direction: Axis
         var row: Int
@@ -378,6 +349,38 @@ final class GameManager: ObservableObject {
             return isContained ? .yellow : .disabled
         }
         return nil
+    }
+    
+    func share(includeURL: Bool) {
+        let grid = (0..<guesses.count).map { row in
+            (0..<guesses[row].count).map { column in
+                switch resultsColor(row: row, column: column) {
+                case .yellow: return "🟨"
+                case .green: return "🟩"
+                case .red: return "🟥"
+                default: return "⬛️"
+                }
+            }.joined(separator: "")
+        }.joined(separator: "\n")
+        let index = Day.today.timestamp - Day.releaseDate.timestamp + 1
+        var message = """
+        Griddle \(index)
+        
+        \(grid)
+        """
+        if includeURL {
+            message.append("\n\(JSObject.global.location.href.string ?? "")")
+        }
+        
+        print(message)
+        
+        if JSObject.global.navigator.isUndefined || JSObject.global.navigator.share.isUndefined {
+            _ = JSObject.global.navigator.clipboard.writeText(message)
+        } else {
+            _ = JSObject.global.navigator.share([
+                "text": message
+            ].jsValue)
+        }
     }
 }
 

@@ -6,7 +6,7 @@ import Foundation
 /// The colors indicate how many guesses it took the player to solve a given tile.
 struct GameSummaryView: View {
     @ObservedObject var manager: GameManager
-    @State private var includeURL = true
+    @AppStorage("includeURL") private var includeURL = true
     
     @StateObject private var timer = Timer()
     final class Timer: ObservableObject {
@@ -51,7 +51,6 @@ struct GameSummaryView: View {
                 }
                 Legend()
             }
-            .frame(maxWidth: .infinity)
             .padding(.vertical)
             HStack {
                 VStack(alignment: .leading) {
