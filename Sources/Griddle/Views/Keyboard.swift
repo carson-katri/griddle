@@ -63,6 +63,7 @@ struct Keyboard: View {
     
     struct Key<Fill: ShapeStyle>: View {
         let label: Text
+        var padding: CGFloat = 15
         let action: () -> ()
         let fill: Fill
         
@@ -72,7 +73,7 @@ struct Keyboard: View {
                     .font(.system(size: 14))
                     .fontWeight(.medium)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 15)
+                    .padding(.vertical, padding)
                     .background(fill, in: RoundedRectangle(cornerRadius: 5))
             }
         }

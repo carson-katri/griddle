@@ -22,7 +22,10 @@ let package = Package(
             dependencies: [
                 .product(name: "TokamakShim", package: "Tokamak"),
             ],
-            resources: [.copy("check.svg")],
+            resources: [
+                .copy("checkmark.svg"),
+                .copy("xmark.svg"),
+            ],
             linkerSettings: [
                 .unsafeFlags(
                   ["-Xlinker", "--stack-first", "-Xlinker", "-z", "-Xlinker", "stack-size=16777216"],

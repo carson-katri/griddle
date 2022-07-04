@@ -24,7 +24,7 @@ final class GameManager: ObservableObject {
     struct Stats: Hashable {
         let guesses: [[[Character]]]
         
-        func share() {
+        func share(includeURL: Bool) {
             let grid = guesses.map { row in
                 row.map { column in
                     if column.count == 0 {
@@ -40,12 +40,14 @@ final class GameManager: ObservableObject {
                     }
                 }.joined(separator: "")
             }.joined(separator: "\n")
-            let message = """
+            var message = """
             Griddle 1
             
             \(grid)
             """
-            print(message)
+            if includeURL {
+                message.append("\n\(JSObject.global.location.href.string ?? "")")
+            }
             
             if JSObject.global.navigator.isUndefined || JSObject.global.navigator.share.isUndefined {
                 _ = JSObject.global.navigator.clipboard.writeText(message)
@@ -94,6 +96,20 @@ final class GameManager: ObservableObject {
             }
             return .undefined
         })
+    }
+    
+    var timers = [ObjectIdentifier:JSTimer]()
+    func showMessage(_ message: String) {
+        messages.append("Not in word list")
+        var id: ObjectIdentifier?
+        let timer = JSTimer(millisecondsDelay: 2000) { [weak self] in
+            guard let self = self else { return }
+            self.messages.removeLast()
+            guard let id = id else { return }
+            self.timers.removeValue(forKey: id)
+        }
+        id = ObjectIdentifier(timer)
+        timers[id!] = timer
     }
     
     func select(column: Int) {
@@ -200,7 +216,7 @@ final class GameManager: ObservableObject {
     /// Commit a guess.
     func guess() {
         guard wordlist.contains(String(activeInput)) else {
-            messages.append("Not in word list")
+            showMessage("Not in word list")
             return
         }
         guard let selection = selection else { return }

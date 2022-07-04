@@ -68,7 +68,7 @@ struct GriddleApp: App {
         ]
     }
     
-    @State private var count = 0
+    @State private var isOn = false
     
     var body: some Scene {
         WindowGroup("Griddle") {
