@@ -274,14 +274,15 @@ final class GameManager: ObservableObject {
         var guessOccurrences = 0
         for rowIndex in 0..<grid.count {
             for columnIndex in 0..<grid[rowIndex].count {
-                if guesses[rowIndex][columnIndex].last == grid[rowIndex][columnIndex] {
+                let lastGuess = guesses[rowIndex][columnIndex].last
+                if lastGuess == guess && lastGuess == grid[rowIndex][columnIndex] {
                     guessOccurrences += 1
                     continue
                 }
                 if rowIndex > row || (rowIndex == row && columnIndex >= column) {
                     continue
                 }
-                if guesses[rowIndex][columnIndex].last == guess {
+                if lastGuess == guess {
                     guessOccurrences += 1
                 }
             }
@@ -304,8 +305,17 @@ final class GameManager: ObservableObject {
         }
     }
     
+    /// The color for a key given the current selection.
     func color(for letter: Character) -> Color? {
         let letter = Character(String(letter).uppercased())
+        
+        if let selection = selection,
+           grid.indices.contains(selection.row),
+           grid[selection.row].indices.contains(selection.column),
+           guesses[selection.row][selection.column].contains(letter) && grid[selection.row][selection.column] != letter {
+            return .primary.opacity(0.05)
+        }
+        
         var isContained = false
         var wasGuessed = false
         // Check each coordinate
