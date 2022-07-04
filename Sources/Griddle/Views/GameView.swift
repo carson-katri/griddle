@@ -16,8 +16,17 @@ struct GameView: View {
     
     var body: some View {
         VStack {
-            Text("Griddle")
-                .font(.largeTitle.weight(.heavy))
+            VStack {
+                Text("Griddle")
+                    .font(.largeTitle.weight(.heavy))
+                // FIXME: `Link` is not yet supported.
+                HTML("a", ["href": "https://github.com/carson-katri/griddle"]) {
+                    Text("view on GitHub")
+                        .underline()
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
                 .padding(.vertical)
                 .frame(maxWidth: .infinity)
                 .overlay(alignment: .trailing) {
