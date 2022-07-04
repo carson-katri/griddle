@@ -83,7 +83,7 @@ struct GameSummaryView: View {
     }
     
     var formattedCountdown: String {
-        let remaining = (GameHistory.Day.next.valueOf() - timer.now.valueOf()) / 1000
+        let remaining = (Day.next.valueOf() - timer.now.valueOf()) / 1000
         let h = remaining / 3600
         let m = remaining.truncatingRemainder(dividingBy: 3600) / 60
         let s = remaining.truncatingRemainder(dividingBy: 3600).truncatingRemainder(dividingBy: 60)

@@ -57,7 +57,7 @@ final class GameManager: ObservableObject {
     }
     
     init() {
-        let grid = GameHistory.Day.today.grid
+        let grid = Day.today.grid
         self.grid = grid
         var occurrences = [Character:Int]()
         var guesses = [[[Character]]]()
