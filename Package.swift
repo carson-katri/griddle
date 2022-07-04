@@ -26,6 +26,7 @@ let package = Package(
             resources: [
                 .copy("checkmark.svg"),
                 .copy("xmark.svg"),
+                .copy("favicon.ico"),
             ],
             linkerSettings: [
                 .unsafeFlags(

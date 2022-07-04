@@ -32,4 +32,14 @@ var style = JSObject.global.document.createElement("style")
 style.innerHTML = .string("button { border: none; background: none; padding: none; margin: none; touch-action: manipulation; }")
 _ = JSObject.global.document.head.appendChild(style)
 
+var title = JSObject.global.document.createElement("title")
+title.innerHTML = .string("Griddle")
+_ = JSObject.global.document.head.appendChild(title)
+
+var favicon = JSObject.global.document.createElement("link")
+favicon.rel = .string("icon")
+favicon.type = .string("image/x-icon")
+favicon.href = .string("favicon.ico")
+_ = JSObject.global.document.head.appendChild(favicon)
+
 GriddleApp.main()
