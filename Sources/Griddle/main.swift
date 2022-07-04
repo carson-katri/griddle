@@ -104,21 +104,16 @@ struct GameHistory: Codable, Hashable {
     }
     
     struct Day: Codable, Hashable {
-        let day: Int
-        let month: Int
-        let year: Int
+        let timestamp: Int
         
         static var today: Self {
-            let components = Calendar.current.dateComponents([.day, .month, .year], from: Date())
             return Self(
-                day: components.day ?? 0,
-                month: components.month ?? 0,
-                year: components.year ?? 0
+                timestamp: Int(midnight.valueOf() / 1000)
             )
         }
         
         var grid: [[Character]] {
-            let grid = makeGrid(seed: (year * 365) + (month * 31) + day)
+            let grid = makeGrid(seed: timestamp)
             return [
                 grid.0,
                 grid.1,
@@ -126,10 +121,18 @@ struct GameHistory: Codable, Hashable {
             ]
         }
         
-        var next: Date {
-            let startOfDay = Calendar.current.startOfDay(for: Date())
-            return Calendar.current.date(byAdding: .day, value: 1, to: startOfDay) ?? Date()
-        }
+        static let midnight: JSDate = {
+            var date = JSDate()
+            date.hours = 0
+            date.minutes = 0
+            date.seconds = 0
+            return date
+        }()
+        static let next: JSDate = {
+            var date = midnight
+            date.date += 1
+            return date
+        }()
     }
 }
 

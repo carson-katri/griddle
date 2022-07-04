@@ -1,8 +1,22 @@
 import TokamakShim
+import JavaScriptKit
+import Foundation
 
 struct GameSummaryView: View {
     @ObservedObject var manager: GameManager
     @State private var includeURL = true
+    
+    @StateObject private var timer = Timer()
+    final class Timer: ObservableObject {
+        private var timer: JSTimer!
+        @Published var now = JSDate()
+        
+        init() {
+            self.timer = JSTimer(millisecondsDelay: 1000, isRepeating: true) { [weak self] in
+                self?.now = JSDate()
+            }
+        }
+    }
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -39,11 +53,12 @@ struct GameSummaryView: View {
                     Text("Next Griddle")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    Text("00:00:00")
+                    Text(formattedCountdown)
                         .font(.title)
                         .bold()
                 }
-                .frame(maxWidth: .infinity)
+                .padding(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 // FIXME: Use `Divider` when fiber supports it
                 Rectangle()
                     .fill(.quaternary)
@@ -56,7 +71,7 @@ struct GameSummaryView: View {
                         action: { manager.share(includeURL: includeURL) },
                         fill: .green
                     )
-                    .frame(width: 150)
+                    .frame(width: 125)
                     Checkbox(isOn: $includeURL) {
                         Text(includeURL ? "with site link" : "without site link")
                             .font(.caption)
@@ -65,5 +80,15 @@ struct GameSummaryView: View {
             }
         }
         .frame(maxWidth: 300)
+    }
+    
+    var formattedCountdown: String {
+        let remaining = (GameHistory.Day.next.valueOf() - timer.now.valueOf()) / 1000
+        let h = remaining / 3600
+        let m = remaining.truncatingRemainder(dividingBy: 3600) / 60
+        let s = remaining.truncatingRemainder(dividingBy: 3600).truncatingRemainder(dividingBy: 60)
+        return (h < 10 ? "0\(Int(h))" : "\(Int(h))")
+            + ":" + (m < 10 ? "0\(Int(m))" : "\(Int(m))")
+            + ":" + (s < 10 ? "0\(Int(s))" : "\(Int(s))")
     }
 }
