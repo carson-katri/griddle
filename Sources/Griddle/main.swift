@@ -60,8 +60,7 @@ struct GriddleApp: App {
     let grid: [[Character]]
     
     init() {
-//        let grid = makeGrid()
-        let grid: ([Character], [Character], [Character]) = (["A", "B", "C"], ["D", "E", "F"], ["G", "H", "I"])
+        let grid = makeGrid()
         self.grid = [
             grid.0,
             grid.1,

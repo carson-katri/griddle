@@ -108,7 +108,12 @@ final class GameManager: ObservableObject {
         while guesses.indices.contains(selection.row) && guesses[selection.row][column].last == grid[selection.row][column] {
             selection.row += 1
         }
-        self.selection = selection
+        
+        if self.selection == selection {
+            self.selection = nil
+        } else {
+            self.selection = selection
+        }
     }
     
     func select(row: Int) {
@@ -124,7 +129,12 @@ final class GameManager: ObservableObject {
         while guesses.indices.contains(row) && guesses[row].indices.contains(selection.column) && guesses[row][selection.column].last == grid[row][selection.column] {
             selection.column += 1
         }
-        self.selection = selection
+        
+        if self.selection == selection {
+            self.selection = nil
+        } else {
+            self.selection = selection
+        }
     }
     
     func enter(_ character: Character) {
@@ -148,7 +158,12 @@ final class GameManager: ObservableObject {
                 selection.row += 1
             }
         }
-        self.selection = selection
+        
+        if self.selection == selection {
+            self.selection = nil
+        } else {
+            self.selection = selection
+        }
     }
     
     func delete() {
@@ -182,11 +197,12 @@ final class GameManager: ObservableObject {
         self.selection = selection
     }
     
+    /// Commit a guess.
     func guess() {
-//        guard wordlist.contains(String(activeInput)) else {
-//            messages.append("Not in word list")
-//            return
-//        }
+        guard wordlist.contains(String(activeInput)) else {
+            messages.append("Not in word list")
+            return
+        }
         guard let selection = selection else { return }
         switch selection.direction {
         case .horizontal:
@@ -249,15 +265,18 @@ final class GameManager: ObservableObject {
         }
     }
     
+    /// The color for a grid tile at `row`/`column`.
     func color(row: Int, column: Int) -> Color {
         let guess = lastGuess(row: row, column: column, useInput: false)
         
+        // No guess has been made, so fill with clear.
         if guess == " " {
             return .clear
         }
         
         let real = grid[row][column]
         
+        // The guess was correct, so fill with green.
         if guess == real {
             return .green
         }
@@ -290,16 +309,15 @@ final class GameManager: ObservableObject {
         return guessOccurrences < occurrences[guess, default: 0] ? .yellow : .secondary
     }
     
+    /// The color for a share tile, indicating the number of guesses taken for each.
     func resultsColor(row: Int, column: Int) -> Color {
         let guesses = guesses[row][column]
-        if guesses.count == 0 {
-            return .secondary
+        if guesses.last != grid[row][column] {
+            return .red
         } else if guesses.count <= 2 {
             return .green
         } else if guesses.count <= 3 {
             return .yellow
-        } else if guesses.count >= GameManager.maxGuessesPerLetter {
-            return .red
         } else {
             return .secondary
         }
@@ -309,11 +327,13 @@ final class GameManager: ObservableObject {
     func color(for letter: Character) -> Color? {
         let letter = Character(String(letter).uppercased())
         
+        // If we have a selection,
+        // disable the key when we previously guessed this letter here but it was wrong.
         if let selection = selection,
            grid.indices.contains(selection.row),
            grid[selection.row].indices.contains(selection.column),
            guesses[selection.row][selection.column].contains(letter) && grid[selection.row][selection.column] != letter {
-            return .primary.opacity(0.05)
+            return .disabled
         }
         
         var isContained = false
@@ -321,9 +341,11 @@ final class GameManager: ObservableObject {
         // Check each coordinate
         for row in 0..<grid.count {
             for col in 0..<grid[row].count {
+                // This letter is contained in the grid.
                 if grid[row][col] == letter {
                     isContained = true
                 }
+                // Check each guess for our letter.
                 for guess in guesses[row][col] {
                     guard guess == letter else { continue }
                     wasGuessed = true
@@ -334,9 +356,18 @@ final class GameManager: ObservableObject {
                 }
             }
         }
+        // If we haven't guessed this letter, don't reveal the color
         if wasGuessed {
-            return isContained ? .yellow : .primary.opacity(0.05)
+            // If we have guessed this letter, return yellow if its contained in the grid,
+            // or disable it if not.
+            return isContained ? .yellow : .disabled
         }
         return nil
+    }
+}
+
+extension Color {
+    static var disabled: Color {
+        .primary.opacity(0.05)
     }
 }

@@ -27,14 +27,22 @@ struct GameView: View {
                         Color.clear
                             .gridCellUnsizedAxes([.horizontal, .vertical])
                         ForEach(0..<grid.count) { column in
-                            AxisButton(axis: .vertical) {
+                            AxisButton(
+                                axis: .vertical,
+                                isActive: manager.selection?.direction == .vertical
+                                    && manager.selection?.column == column
+                            ) {
                                 manager.select(column: column)
                             }
                         }
                     }
                     ForEach(Array(grid.enumerated()), id: \.element) { word in
                         GridRow {
-                            AxisButton(axis: .horizontal) {
+                            AxisButton(
+                                axis: .horizontal,
+                                isActive: manager.selection?.direction == .horizontal
+                                    && manager.selection?.row == word.offset
+                            ) {
                                 manager.select(row: word.offset)
                             }
                             ForEach(Array(word.element.enumerated()), id: \.element) { character in
@@ -157,17 +165,20 @@ struct GameView: View {
 
 struct AxisButton: View {
     let axis: Axis
+    let isActive: Bool
     let action: () -> ()
     
     var body: some View {
         Button(action: action) {
-            Group {
-                ellipsis
-            }
+            ellipsis
             .frame(maxWidth: axis == .vertical ? .infinity : nil, maxHeight: axis == .horizontal ? .infinity : nil)
             .background {
-                Rectangle()
-                    .stroke(.quaternary, lineWidth: 2)
+                Group {
+                    Rectangle()
+                        .fill(isActive ? Color.primary.opacity(0.2) : .clear)
+                    Rectangle()
+                        .stroke(.quaternary, lineWidth: 2)
+                }
             }
         }
         .gridCellUnsizedAxes([.horizontal, .vertical])
