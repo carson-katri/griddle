@@ -79,7 +79,7 @@ struct GriddleApp: App {
 }
 
 var style = JSObject.global.document.createElement("style")
-style.innerHTML = .string("button { border: none; background: none; padding: none; margin: none; }")
+style.innerHTML = .string("button { border: none; background: none; padding: none; margin: none; touch-action: manipulation; }")
 _ = JSObject.global.document.head.appendChild(style)
 
 GriddleApp.main()

@@ -28,14 +28,7 @@ struct Keyboard: View {
                         Color.clear
                             .gridCellUnsizedAxes(.vertical)
                     } else if row.starts(with: "z") {
-                        Button(action: onEnter) {
-                            Text("ent")
-                                .font(.body.bold())
-                                .frame(maxWidth: .infinity)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 15)
-                                .background(.quaternary, in: RoundedRectangle(cornerRadius: 5))
-                        }
+                        Key(label: "enter", action: onEnter, fill: .quaternary)
                             .gridCellColumns(3)
                             .gridCellUnsizedAxes(.horizontal)
                     }
@@ -48,7 +41,7 @@ struct Keyboard: View {
                             .gridCellColumns(2)
                     }
                     if row.starts(with: "z") {
-                        Key(label: "del", action: onDelete, fill: .quaternary)
+                        Key(label: "delete", action: onDelete, fill: .quaternary)
                             .gridCellColumns(3)
                             .gridCellUnsizedAxes(.horizontal)
                     }
@@ -65,9 +58,9 @@ struct Keyboard: View {
         var body: some View {
             Button(action: action) {
                 Text(label)
-                    .font(.body.bold())
+                    .font(.system(size: 14))
+                    .fontWeight(.medium)
                     .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 8)
                     .padding(.vertical, 15)
                     .background(fill, in: RoundedRectangle(cornerRadius: 5))
             }
