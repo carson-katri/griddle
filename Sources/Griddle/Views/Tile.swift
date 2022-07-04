@@ -1,5 +1,13 @@
 import TokamakShim
 
+/// A single letter in the grid with a given fill color or stoke.
+///
+/// Different fill colors have specific meanings:
+/// * Green - the tile is correct.
+/// * Yellow - the tile is somewhere in the grid.
+/// * Gray - the tile is not in the grid.
+///
+/// When active, the stroke prominence is increased.
 struct Tile: View {
     let letter: Character
     let fill: Color

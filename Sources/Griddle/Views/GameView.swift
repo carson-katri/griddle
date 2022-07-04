@@ -2,6 +2,7 @@ import Foundation
 import TokamakShim
 import JavaScriptKit
 
+/// The main game view, consisting of a grid and keyboard for entering letters.
 struct GameView: View {
     @StateObject private var manager: GameManager
     

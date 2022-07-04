@@ -2,6 +2,8 @@ import TokamakShim
 import JavaScriptKit
 import Foundation
 
+/// Modal content for a breakdown of the final board.
+/// The colors indicate how many guesses it took the player to solve a given tile.
 struct GameSummaryView: View {
     @ObservedObject var manager: GameManager
     @State private var includeURL = true
@@ -31,20 +33,23 @@ struct GameSummaryView: View {
             }
             Text("Today's Grid")
                 .foregroundStyle(.secondary)
-            Grid(horizontalSpacing: 2, verticalSpacing: 2).callAsFunction {
-                ForEach(Array(manager.grid.enumerated()), id: \.offset) { row in
-                    GridRow {
-                        ForEach(Array(row.element.enumerated()), id: \.offset) { letter in
-                            let guesses = manager.guesses[row.offset][letter.offset].count
-                            Text(String(letter.element))
-                                .font(.title3)
-                                .bold()
-                                .foregroundColor(.white)
-                                .frame(width: 40, height: 40)
-                                .background(manager.resultsColor(row: row.offset, column: letter.offset))
+            HStack(alignment: .top) {
+                Grid(horizontalSpacing: 2, verticalSpacing: 2).callAsFunction {
+                    ForEach(Array(manager.grid.enumerated()), id: \.offset) { row in
+                        GridRow {
+                            ForEach(Array(row.element.enumerated()), id: \.offset) { letter in
+                                let guesses = manager.guesses[row.offset][letter.offset].count
+                                Text(String(letter.element))
+                                    .font(.title3)
+                                    .bold()
+                                    .foregroundColor(.white)
+                                    .frame(width: 40, height: 40)
+                                    .background(manager.resultsColor(row: row.offset, column: letter.offset))
+                            }
                         }
                     }
                 }
+                Legend()
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical)
@@ -90,5 +95,26 @@ struct GameSummaryView: View {
         return (h < 10 ? "0\(Int(h))" : "\(Int(h))")
             + ":" + (m < 10 ? "0\(Int(m))" : "\(Int(m))")
             + ":" + (s < 10 ? "0\(Int(s))" : "\(Int(s))")
+    }
+    
+    struct Legend: View {
+        var body: some View {
+            VStack(alignment: .leading) {
+                color(.green, label: "2 or less guesses")
+                color(.yellow, label: "3 or less guesses")
+                color(.primary.opacity(0.5), label: "more than 3 guesses")
+            }
+        }
+        
+        func color(_ color: Color, label: String) -> some View {
+            HStack {
+                Rectangle()
+                    .fill(color)
+                    .frame(width: 15, height: 15)
+                Text(label)
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+        }
     }
 }

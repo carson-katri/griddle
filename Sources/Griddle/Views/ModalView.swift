@@ -1,6 +1,7 @@
 import TokamakShim
 import Foundation
 
+/// A custom modal UI. This could perhaps use the `dialog` tag when available in Tokamak.
 struct ModalView<Content: View>: View {
     @ViewBuilder let content: Content
     

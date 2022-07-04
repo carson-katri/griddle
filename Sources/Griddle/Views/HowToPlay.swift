@@ -1,6 +1,7 @@
 import TokamakShim
 import Foundation
 
+/// Modal content with explainer text for the game.
 struct HowToPlay: View {
     let onClose: () -> ()
     
@@ -11,17 +12,19 @@ struct HowToPlay: View {
                 .bold()
             Group {
                 Text("""
-                Each word across and down forms a word.
+                Each row/column forms a word.
                 Find all six words to win.
                 
                 You can make up to 5 guesses per tile.
                 
                 """)
                 Text("Tap on a selector to enter a row/column.")
-                    .font(.caption)
+                Text("Guesses are made on a single row/column at a time.")
                 AxisButton(axis: .vertical, isActive: false, action: {})
                     .frame(width: 70)
-                Text("Then you can start typing.\nLetters will change color to indicate various states.")
+                Text("Once it's active, you can start typing.")
+                Text("Tap enter to confirm the row/column you selected.")
+                Text("The colors of the tiles will indicate how close you are.")
                     .padding(.bottom)
             }
             .font(.caption)
@@ -66,6 +69,7 @@ struct HowToPlay: View {
         .frame(maxWidth: 300, alignment: .leading)
     }
     
+    /// An example of a single row of tiles.
     struct ExampleRow: View {
         let word: [(letter: Character, color: Color)]
         let caption: String
@@ -81,6 +85,7 @@ struct HowToPlay: View {
                 .font(.title3.bold())
                 Text(caption)
                     .font(.caption2)
+                    .foregroundColor(.secondary)
                     .padding(.top, 2)
             }
         }

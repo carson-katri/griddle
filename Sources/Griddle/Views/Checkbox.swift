@@ -1,5 +1,7 @@
 import TokamakShim
 
+// FIXME: Use `Toggle` with a custom style. when available in Fiber renderers.
+/// A custom toggle style for a checkbox with a ✅ or ❌ inside.
 struct Checkbox<Label: View>: View {
     @Binding var isOn: Bool
     @ViewBuilder let label: Label
