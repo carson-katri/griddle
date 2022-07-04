@@ -2,28 +2,28 @@
 
 > Wordle, but in a grid.
 
-![Resources/screenshot.png](A screenshot of the game)
+<img alt="A screenshot of the game" src="Resources/screenshot.png" width="300" />
 
-This game was built to demonstrate [Tokamak](https://github.com/TokamakUI/Tokamak#fiber-renderers),
-with the `useDynamicLayout` option enabled, to provide a near-native UI development experience.
+This game was built to demonstrate [Tokamak](https://github.com/TokamakUI/Tokamak#fiber-renderers)'s Fiber backend, which can match SwiftUI nearly 1:1 on the web.
 
-### Getting Started
+## Getting Started
 
-You can play at [griddle.buildpassed.com](https://griddle.buildpassed.com), or you can clone to locally.
+You can play at [griddle.buildpassed.com](https://griddle.buildpassed.com), or you can clone to play locally.
 
-Install [Carton](https://github.com/swiftwasm/carton) to run the development server:
+### Running with Carton
+Install [Carton](https://github.com/swiftwasm/carton):
 ```sh
 brew install swiftwasm/tap/carton
 ```
 
-Enter the `griddle` directory and start the site:
+Enter this package's root directory and start the site:
 ```sh
 carton dev
 ```
 
-### How to Play
+## How to Play
 
-Each word across and down forms a word.
+Each row and column forms a word.
 Find all six words to win.
 
 You can make up to 5 guesses per tile.
