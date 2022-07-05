@@ -72,13 +72,20 @@ struct GameView: View {
                                 Tile(lastGuess, fill: color, isActive: isActive)
                                 .font(.title.bold())
                                 .frame(width: 65, height: 65)
-                                .overlay(alignment: .bottomTrailing) {
-                                    Text("\(GameManager.maxGuessesPerLetter - guessCount)")
-                                        .font(.caption)
-                                        .foregroundColor(color == .clear ? Color.secondary : Color.white.opacity(0.8))
-                                        .padding(4)
-                                        .background((color == .clear ? Color.primary.opacity(0.1) : Color.white.opacity(0.25)), in: RoundedRectangle(cornerRadius: 4))
-                                        .padding(4)
+                                .overlay(alignment: .bottomLeading) {
+                                    HStack(spacing: 2) {
+                                        let remaining = GameManager.maxGuessesPerLetter - guessCount - 1
+                                        ForEach(0..<GameManager.maxGuessesPerLetter) {
+                                            Rectangle()
+                                                .fill(
+                                                    remaining < $0
+                                                        ? .clear
+                                                        : (color == .clear ? Color.primary.opacity(0.2) : Color.white.opacity(0.8))
+                                                )
+                                                .frame(height: 3)
+                                        }
+                                    }
+                                    .padding(6)
                                 }
                             }
                         }
