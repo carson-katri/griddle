@@ -362,7 +362,7 @@ final class GameManager: ObservableObject {
                 }
             }.joined(separator: "")
         }.joined(separator: "\n")
-        let index = Day.today.timestamp - Day.releaseDate.timestamp + 1
+        let index = Int((Day.today.timestamp - Day.releaseDate.timestamp) / (3600 * 24) + 1)
         var message = """
         Griddle \(index)
         
