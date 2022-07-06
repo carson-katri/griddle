@@ -55,26 +55,34 @@ func makeGrid(seed: Int) -> ([Character], [Character], [Character]) {
     ) { (a, b, c) in
         // Validate this combination.
         // These words would be placed vertically. We know they are valid words.
+        
+        // Don't allow the same word twice in a column.
+        if a == b || b == c || a == c {
+            return nil
+        }
+        
+        var columns = [[Character]]()
         // Check if they form a valid word in each row.
         // Example:
-        // a is SAT, b is TWO, c is YET.
+        // a is STY, b is AWE, c is TOT.
         // S T Y
         // A W E
         // T O T
         for col in 0..<rowLength {
-            // Check if the letters form a row.
+            // Check if the letters form a column.
             // Example:
-            // SAT[0] -> S, TWO[0] -> W, YET[0] -> Y.
-            // STY is a word, so it passes.
-            let row = [a[col], b[col], c[col]]
-            if !wordlist.contains(String(row)) {
+            // STY[0] -> S, AWE[0] -> A, TOT[0] -> T.
+            // SAT is a word, so it passes.
+            let column = [a[col], b[col], c[col]]
+            if !wordlist.contains(String(column)) {
                 return nil
             }
-            // Check if we used a word in a row more than once.
+            // Check if we used a word more than once.
             // If so, this is invalid.
-            if a == row || b == row || c == row {
+            if column == a || column == b || column == c || columns.contains(column) {
                 return nil
             }
+            columns.append(column)
         }
         // If all checks passed, use this as the grid.
         return (a, b, c)

@@ -12,8 +12,7 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/TokamakUI/Tokamak", revision: "9dfa827"),
-//        .package(path: "../Tokamak"),
+        .package(url: "https://github.com/TokamakUI/Tokamak", branch: "main"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
