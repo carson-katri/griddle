@@ -1,5 +1,7 @@
 import Foundation
 
+var generator = SeededRandomNumberGenerator(seed: seed)
+
 /// Generate a 3x3 grid of valid words.
 ///
 /// A few conditions must be met for a grid to be valid:
@@ -22,7 +24,6 @@ import Foundation
 func makeGrid(seed: Int) -> ([Character], [Character], [Character]) {
     let rowLength = 3
     
-    var generator = SeededRandomNumberGenerator(seed: seed)
     let shuffledWords = wordlist.shuffled(using: &generator)
     
     var possible = [[[Character]]]()
