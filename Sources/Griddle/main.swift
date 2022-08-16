@@ -3,6 +3,8 @@ import JavaScriptKit
 import JavaScriptEventLoop
 import Foundation
 
+JSObject.global.document.object!.body.innerHTML = .string("")
+
 struct GriddleApp: App {
     #if os(WASI)
     static let _configuration = _AppConfiguration(reconciler: .fiber(useDynamicLayout: true))

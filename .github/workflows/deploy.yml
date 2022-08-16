@@ -13,7 +13,7 @@ jobs:
 
       - uses: swiftwasm/swiftwasm-action@v5.6
         with:
-          shell-action: carton bundle
+          shell-action: carton bundle --custom-index-page=index.html
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
