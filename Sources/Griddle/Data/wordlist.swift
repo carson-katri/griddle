@@ -550,6 +550,7 @@ let wordlist = [
     "YES",
     "YET",
     "YIP",
+    "YOU",
     "YUM",
     "ZAG",
     "ZAP",
