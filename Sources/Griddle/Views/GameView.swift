@@ -120,8 +120,12 @@ struct GameView: View {
         .overlay {
             switch manager.phase {
             case .loss, .win:
-                ModalView {
-                    GameSummaryView(manager: manager)
+                if manager.showSummaryModal {
+                    ModalView {
+                        GameSummaryView(manager: manager)
+                    }
+                } else {
+                    EmptyView()
                 }
             case .playing:
                 EmptyView()

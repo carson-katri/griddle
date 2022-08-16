@@ -8,7 +8,29 @@ final class GameManager: ObservableObject {
     let grid: [[Character]]
     let occurrences: [Character:Int]
     
-    @Published var phase = Phase.playing
+    var showSummaryModalTimer: JSTimer?
+    @Published var phase = Phase.playing {
+        didSet {
+            if phase != .playing {
+                switch phase {
+                case .win:
+                    if guesses.contains(where: { $0.contains(where: { $0.count > 4 }) }) {
+                        self.showMessage("Phew!")
+                    } else {
+                        self.showMessage("Nice job!")
+                    }
+                case .loss:
+                    self.showMessage("Oh no!")
+                default:
+                    break
+                }
+                self.showSummaryModalTimer = JSTimer(millisecondsDelay: 2000) { [weak self] in
+                    self?.showSummaryModal = true
+                }
+            }
+        }
+    }
+    @Published var showSummaryModal = false
     @Published var activeInput = [Character]()
     @Published var guesses = [[[Character]]]()
     @Published var selection: Selection? = nil
@@ -63,7 +85,7 @@ final class GameManager: ObservableObject {
     
     var timers = [ObjectIdentifier:JSTimer]()
     func showMessage(_ message: String) {
-        messages.append("Not in word list")
+        messages.append(message)
         var id: ObjectIdentifier?
         let timer = JSTimer(millisecondsDelay: 2000) { [weak self] in
             guard let self = self else { return }

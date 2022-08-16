@@ -1,5 +1,6 @@
 import TokamakShim
 import JavaScriptKit
+import JavaScriptEventLoop
 import Foundation
 
 struct GriddleApp: App {
@@ -41,5 +42,7 @@ favicon.rel = .string("icon")
 favicon.type = .string("image/x-icon")
 favicon.href = .string("favicon.ico")
 _ = JSObject.global.document.head.appendChild(favicon)
+
+JavaScriptEventLoop.installGlobalExecutor()
 
 GriddleApp.main()
