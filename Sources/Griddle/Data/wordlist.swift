@@ -435,6 +435,7 @@ let wordlist = [
     "RIG",
     "RIM",
     "RIP",
+    "ROB",
     "ROD",
     "ROT",
     "ROW",
